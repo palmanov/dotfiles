@@ -6,11 +6,11 @@ lock="${XDG_CACHE_HOME:-$HOME/.cache}/alacritty-tmux-main.lock"
   flock 9
 
   i=0
-  while tmux has-session -t "main-$i" 2>/dev/null; do
+  while tmux has-session -t "$i" 2>/dev/null; do
     i=$((i + 1))
   done
 
-  session="main-$i"
+  session="$i"
 } 9>"$lock"
 
 exec tmux new-session -s "$session" \; set-option destroy-unattached on
