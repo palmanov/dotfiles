@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PERFORMANCE_PROFILE="latency-performance"
+
+if ! command -v tuned-adm >/dev/null 2>&1; then
+  echo "Error: tuned-adm not found"
+  exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 <command>"
+  exit 1
+fi
+
+previous_profile="$(tuned-adm active | sed -n 's/^Current active profile: //p')"
+
+restore_profile() {
+  echo "Restoring tuned profile: $previous_profile"
+  tuned-adm profile "$previous_profile" || true
+}
+
+trap restore_profile EXIT INT TERM HUP
+
+echo "Current profile: $previous_profile"
+echo "Switching to: $PERFORMANCE_PROFILE"
+
+tuned-adm profile "$PERFORMANCE_PROFILE"
+
+"$@"
